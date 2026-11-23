@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Currency Converter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Page layout styles, followed by shared component styles -->
+  <link rel="stylesheet" href="pages/converterPage.css" />
+  <link rel="stylesheet" href="components/inputs.css" />
+  <link rel="stylesheet" href="components/panels.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <main class="converter-card" aria-label="Live Currency Converter">
+      <header class="card-header">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+              <path d="M12 18V6"></path>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>Live Currency Converter</h1>
+            <p class="subtitle">Real-time global exchange rates powered by ExchangeRate-API</p>
+          </div>
+        </div>
+        <div class="status-pill" id="statusPill" title="Live API connection status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Live Rates</span>
+        </div>
+      </header>
+
+      <section class="converter-body">
+        <div class="input-group">
+          <div class="label-row">
+            <label for="amount">Amount</label>
+            <div class="quick-amounts" aria-label="Quick amount presets">
+              <button type="button" class="chip" data-amount="1">1</button>
+              <button type="button" class="chip" data-amount="10">10</button>
+              <button type="button" class="chip" data-amount="100">100</button>
+              <button type="button" class="chip" data-amount="1000">1,000</button>
+            </div>
+          </div>
+          <div class="amount-input-wrapper">
+            <span class="currency-symbol" id="fromSymbol">$</span>
+            <input
+              type="number"
+              id="amount"
+              name="amount"
+              value="100"
+              min="0"
+              step="any"
+              placeholder="Enter amount"
+              autocomplete="off"
+              inputmode="decimal"
+            />
+          </div>
+        </div>
+
+        <div class="currency-row">
+          <div class="currency-field">
+            <label for="fromCurrency">From</label>
+            <div class="select-wrapper">
+              <select id="fromCurrency" name="fromCurrency" aria-label="From currency"></select>
+              <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="swap-btn"
+            id="swapBtn"
+            title="Swap currencies"
+            aria-label="Swap source and target currencies"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="17 1 21 5 17 9"></polyline>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+              <polyline points="7 23 3 19 7 15"></polyline>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+          </button>
+
+          <div class="currency-field">
+            <label for="toCurrency">To</label>
+            <div class="select-wrapper">
+              <select id="toCurrency" name="toCurrency" aria-label="To currency"></select>
+              <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-panel" aria-live="polite" aria-atomic="true">
+          <div class="result-top">
+            <span class="result-label">Converted Amount</span>
+            <button type="button" class="refresh-btn" id="refreshBtn" title="Refresh exchange rate">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>Refresh</span>
+            </button>
+          </div>
+
+          <div class="result-display" id="result">Fetching live rate...</div>
+
+          <div class="rate-meta" id="rateMeta">
+            <span id="unitRate">1 USD = — EUR</span>
+            <span class="meta-divider" aria-hidden="true">•</span>
+            <span id="inverseRate">1 EUR = — USD</span>
+          </div>
+
+          <div class="error-banner" id="errorBanner" role="alert" hidden></div>
+        </div>
+
+        <div class="popular-section">
+          <span class="section-caption">Popular pairs</span>
+          <div class="popular-pairs" id="popularPairs">
+            <button type="button" class="pair-btn" data-from="USD" data-to="EUR">USD → EUR</button>
+            <button type="button" class="pair-btn" data-from="USD" data-to="GBP">USD → GBP</button>
+            <button type="button" class="pair-btn" data-from="USD" data-to="JPY">USD → JPY</button>
+            <button type="button" class="pair-btn" data-from="EUR" data-to="GBP">EUR → GBP</button>
+            <button type="button" class="pair-btn" data-from="USD" data-to="MMK">USD → MMK</button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="card-footer">
+        <div class="footer-meta">
+          <span id="lastUpdated">Rates updated: —</span>
+          <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">
+            Rates by ExchangeRate-API
+          </a>
+        </div>
+
+        <details class="api-settings" id="apiSettings">
+          <summary>Configure ExchangeRate-API Key (Optional)</summary>
+          <div class="api-settings-body">
+            <p>
+              By default, this app uses ExchangeRate-API's free open endpoint.
+              Enter your personal API key below to use the authenticated
+              <code>v6.exchangerate-api.com/v6/{API_KEY}/pair</code> endpoint.
+            </p>
+            <div class="api-input-row">
+              <input
+                type="password"
+                id="apiKeyInput"
+                placeholder="Paste your ExchangeRate-API key"
+                autocomplete="off"
+              />
+              <button type="button" class="btn-primary" id="saveKeyBtn">Save Key</button>
+              <button type="button" class="btn-ghost" id="clearKeyBtn">Use Free</button>
+            </div>
+            <p class="api-hint" id="apiModeText">Currently using: Free Open Endpoint (no key required)</p>
+          </div>
+        </details>
+      </footer>
+    </main>
+  </div>
+
+  <!-- 1. Data layer (saving, loading, API fetching) -->
+  <script src="data/currencies.js"></script>
+  <script src="data/settingsStorage.js"></script>
+  <script src="data/exchangeRateApi.js"></script>
+
+  <!-- 2. Shared UI components -->
+  <script src="components/formatters.js"></script>
+  <script src="components/currencyDropdown.js"></script>
+  <script src="components/statusBadge.js"></script>
+  <script src="components/resultPanel.js"></script>
+  <script src="components/apiSettingsPanel.js"></script>
+
+  <!-- 3. Screen controller -->
+  <script src="pages/converterPage.js"></script>
+</body>
+</html>
